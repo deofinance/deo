@@ -1,0 +1,41 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient (matches brand colors) -->
+  <rect width="512" height="512" rx="96" fill="url(#gradient)"/>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="50%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+    <linearGradient id="textGlow" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f0fdf4"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-opacity="0.25" flood-color="#022c22"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#dcfce7" flood-opacity="0.5"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Decorative Circle Accent -->
+  <circle cx="256" cy="220" r="140" fill="url(#textGlow)" opacity="0.08"/>
+  
+  <!-- DEO Text with Glow -->
+  <g filter="url(#shadow)">
+    <text x="256" y="320" font-family="Arial, sans-serif" font-size="180" font-weight="900" fill="url(#textGlow)" text-anchor="middle" letter-spacing="-8">DEO</text>
+  </g>
+  
+  <!-- Subtle Accent Lines -->
+  <rect x="140" y="360" width="232" height="6" rx="3" fill="white" opacity="0.25"/>
+  <rect x="180" y="372" width="152" height="4" rx="2" fill="white" opacity="0.15"/>
+</svg>
