@@ -49,7 +49,7 @@ MIT License
 
 ## 📞 Support
 
-📧 Email: deo@deofinance.com
+📧 Email: deo@deo.finance
 
 ---
 
