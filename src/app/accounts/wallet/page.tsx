@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Wallet, Send, ArrowLeftRight, Loader2, RefreshCw } from 'lucide-react';
+import { TransactionHistory } from '@/components/wallet/TransactionHistory';
 
 export default function WalletPage() {
   const router = useRouter();
@@ -227,6 +228,9 @@ export default function WalletPage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Transaction History */}
+      <TransactionHistory />
     </div>
   );
 }

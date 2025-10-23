@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowUpRight, Wallet, CreditCard, TrendingUp, Sparkles, Plus, Bell, ChevronRight } from 'lucide-react';
 import { formatCurrency, formatTimeAgo } from '@/lib/utils';
 import Link from 'next/link';
+import { CreateWalletModal } from '@/components/wallet/CreateWalletModal';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function DashboardPage() {
   const [totalBalance, setTotalBalance] = useState('0');
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateWallet, setShowCreateWallet] = useState(false);
+  const [hasWallet, setHasWallet] = useState(false);
 
   useEffect(() => {
     // Check for token in URL query parameters (from OAuth callback)
@@ -63,6 +66,7 @@ export default function DashboardPage() {
       if (balanceRes.ok) {
         const data = await balanceRes.json();
         setTotalBalance(data.balance || '0');
+        setHasWallet(!!data.address);
       } else {
         console.warn('Failed to load balance:', await balanceRes.text());
       }
@@ -115,10 +119,20 @@ export default function DashboardPage() {
                 </div>
                 <p className="text-emerald-100 text-lg">Experience the future of digital finance</p>
               </div>
-              <Button className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Funds
-              </Button>
+              {hasWallet ? (
+                <Button className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Funds
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => setShowCreateWallet(true)}
+                  className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold"
+                >
+                  <Wallet className="h-4 w-4 mr-2" />
+                  Create Wallet
+                </Button>
+              )}
             </div>
             
             {/* Quick Stats */}
@@ -229,6 +243,12 @@ export default function DashboardPage() {
           </Card>
         </div>
       </main>
+
+      {/* Create Wallet Modal */}
+      <CreateWalletModal 
+        open={showCreateWallet} 
+        onOpenChange={setShowCreateWallet}
+      />
     </div>
   );
 }
