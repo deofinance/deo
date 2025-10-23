@@ -1,20 +1,10 @@
 // Create device token for Circle authentication
-// TODO: Complete Circle frontend integration before enabling this endpoint
+// Note: Device tokens are now generated on the frontend by the Circle SDK
+// This endpoint is kept for backward compatibility but returns success immediately
 import { NextRequest, NextResponse } from 'next/server';
-// import { initiateUserControlledWalletsClient } from '@circle-fin/user-controlled-wallets';
 
 export async function POST(request: NextRequest) {
   try {
-    // Temporarily disabled - Circle frontend integration pending
-    return NextResponse.json(
-      { 
-        error: 'Circle integration not yet complete',
-        message: 'This endpoint will be available when Circle Web SDK is integrated'
-      },
-      { status: 503 }
-    );
-
-    /* TODO: Uncomment when Circle frontend integration is complete
     const { deviceId } = await request.json();
 
     if (!deviceId) {
@@ -24,39 +14,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if Circle API key is configured
-    if (!process.env.CIRCLE_API_KEY) {
-      console.error('CIRCLE_API_KEY not configured');
+    // Device tokens are handled by the frontend SDK
+    // Just confirm the configuration is ready
+    if (!process.env.NEXT_PUBLIC_CIRCLE_APP_ID) {
       return NextResponse.json(
-        { error: 'Circle API not configured' },
+        { error: 'Circle not configured' },
         { status: 503 }
       );
     }
 
-    const circleClient = initiateUserControlledWalletsClient({
-      apiKey: process.env.CIRCLE_API_KEY,
-    });
-
-    const response = await circleClient.createDeviceTokenForSocialLogin({
-      deviceId,
-    });
-
-    if (!response.data) {
-      throw new Error('No data returned from Circle');
-    }
-
-    console.log('Device token created for device:', deviceId);
+    console.log('Device ID registered:', deviceId);
 
     return NextResponse.json({
-      deviceToken: response.data.deviceToken,
-      deviceEncryptionKey: response.data.deviceEncryptionKey,
+      success: true,
+      message: 'Device registered successfully',
+      deviceId,
     });
-    */
   } catch (error) {
-    console.error('Device token creation error:', error);
+    console.error('Device registration error:', error);
     return NextResponse.json(
       { 
-        error: 'Failed to create device token',
+        error: 'Failed to register device',
         message: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }

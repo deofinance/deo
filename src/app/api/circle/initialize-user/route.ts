@@ -1,19 +1,8 @@
 // Initialize Circle user and create wallet
-// TODO: Complete Circle frontend integration before enabling this endpoint
 import { NextRequest, NextResponse } from 'next/server';
-// import { initiateUserControlledWalletsClient } from '@circle-fin/user-controlled-wallets';
+import { initiateUserControlledWalletsClient } from '@circle-fin/user-controlled-wallets';
 
 export async function POST(request: NextRequest) {
-  // Temporarily disabled - Circle frontend integration pending
-  return NextResponse.json(
-    { 
-      error: 'Circle integration not yet complete',
-      message: 'This endpoint will be available when Circle Web SDK is integrated'
-    },
-    { status: 503 }
-  );
-
-  /* TODO: Uncomment when Circle frontend integration is complete
   try {
     const { userToken, accountType = 'SCA', blockchains } = await request.json();
 
@@ -68,5 +57,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-  */
 }
