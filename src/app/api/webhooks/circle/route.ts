@@ -7,7 +7,20 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // TODO: Verify Circle webhook signature
+    // Verify Circle webhook signature
+    // Circle sends signature in x-circle-signature header
+    const signature = request.headers.get('x-circle-signature');
+    const webhookSecret = process.env.CIRCLE_WEBHOOK_SECRET;
+    
+    // TODO: Implement signature verification when webhook secret is configured
+    // if (webhookSecret && signature) {
+    //   const crypto = require('crypto');
+    //   const hmac = crypto.createHmac('sha256', webhookSecret);
+    //   const expectedSignature = hmac.update(JSON.stringify(body)).digest('hex');
+    //   if (signature !== expectedSignature) {
+    //     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    //   }
+    // }
 
     const { eventType, data } = body;
 

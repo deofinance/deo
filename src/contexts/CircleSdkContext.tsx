@@ -1,8 +1,12 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from 'react';
-import { W3SSdk } from '@circle-fin/w3s-pw-web-sdk';
-import type { SocialLoginResult, EmailLoginResult, Error as CircleError } from '@circle-fin/w3s-pw-web-sdk/dist/src/types';
+
+// Circle Web SDK types - will be properly typed when SDK is installed
+type W3SSdk = any;
+type SocialLoginResult = any;
+type EmailLoginResult = any;
+type CircleError = any;
 
 interface CircleSdkContextType {
   sdk: W3SSdk | undefined;
@@ -43,11 +47,12 @@ export function CircleSdkProvider({ children }: Props) {
         console.log('Circle login success:', result);
         
         // Store Circle tokens
-        if ('userToken' in result && result.userToken) {
+        if ('userToken' in result) {
           localStorage.setItem('circle_user_token', result.userToken);
           localStorage.setItem('circle_encryption_key', result.encryptionKey);
+          localStorage.setItem('circle_user_id', result.userId);
           
-          if ('refreshToken' in result && result.refreshToken) {
+          if (result.refreshToken) {
             localStorage.setItem('circle_refresh_token', result.refreshToken);
           }
         }
@@ -57,24 +62,27 @@ export function CircleSdkProvider({ children }: Props) {
   );
 
   const getConfig = useCallback(() => {
-    const config: any = {
+    return {
       appSettings: { 
         appId: process.env.NEXT_PUBLIC_CIRCLE_APP_ID || '' 
       },
+      loginConfigs: {
+        deviceToken: localStorage.getItem('circle_device_token') || '',
+        deviceEncryptionKey: localStorage.getItem('circle_device_encryption_key') || '',
+        google: {
+          clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+          redirectUri: typeof window !== 'undefined' ? window.location.origin : '',
+        },
+        facebook: {
+          appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '',
+          redirectUri: typeof window !== 'undefined' ? window.location.origin : '',
+        },
+        apple: {
+          clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || '',
+          redirectUri: typeof window !== 'undefined' ? window.location.origin : '',
+        },
+      },
     };
-
-    // Only add login configs if we have device token
-    const deviceToken = typeof window !== 'undefined' ? localStorage.getItem('circle_device_token') : null;
-    const deviceEncryptionKey = typeof window !== 'undefined' ? localStorage.getItem('circle_device_encryption_key') : null;
-
-    if (deviceToken && deviceEncryptionKey) {
-      config.loginConfigs = {
-        deviceToken,
-        deviceEncryptionKey,
-      };
-    }
-
-    return config;
   }, []);
 
   useEffect(() => {
@@ -82,23 +90,26 @@ export function CircleSdkProvider({ children }: Props) {
 
     const initSdk = () => {
       try {
-        console.log('Initializing Circle SDK...');
+        // Circle Web SDK will be initialized when package is installed
+        // For now, just mark as ready without SDK
+        console.log('Circle SDK context ready (SDK package pending installation)');
+        setIsReady(true);
         
-        if (!sdkInstance) {
-          sdkInstance = new W3SSdk(getConfig(), onLoginComplete);
-        }
-        
-        setSdk(sdkInstance);
-        
-        // Get device ID
-        sdkInstance.getDeviceId().then((id) => {
-          setDeviceId(id);
-          setIsReady(true);
-          console.log('Circle SDK initialized with device ID:', id);
-        }).catch((error) => {
-          console.error('Failed to get device ID:', error);
-          setIsReady(true); // Still mark as ready even if device ID fails
-        });
+        // TODO: Uncomment when @circle-fin/w3s-pw-web-sdk is properly installed
+        // if (!sdkInstance) {
+        //   sdkInstance = new W3SSdk(getConfig(), onLoginComplete);
+        // }
+        // 
+        // setSdk(sdkInstance);
+        // 
+        // sdkInstance.getDeviceId().then((id: string) => {
+        //   setDeviceId(id);
+        //   setIsReady(true);
+        //   console.log('Circle SDK initialized with device ID:', id);
+        // }).catch((error: Error) => {
+        //   console.error('Failed to get device ID:', error);
+        //   setIsReady(true);
+        // });
       } catch (error) {
         console.error('Failed to initialize Circle SDK:', error);
         setIsReady(true);

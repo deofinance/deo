@@ -37,7 +37,6 @@ const JWT_EXPIRY = '7d';
 export interface JwtPayload {
   userId: string;
   email: string;
-  circleUserId?: string;
   iat?: number;
   exp?: number;
 }

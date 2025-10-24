@@ -1,10 +1,18 @@
 // Sync Circle user with our database
+// TEMPORARILY DISABLED - Circle SDK integration pending
 import { NextRequest, NextResponse } from 'next/server';
-import { initiateUserControlledWalletsClient } from '@circle-fin/user-controlled-wallets';
-import { UserService } from '@/lib/services/userService';
-import { generateToken } from '@/lib/utils/jwt';
 
 export async function POST(request: NextRequest) {
+  // Temporarily disabled until Circle SDK is properly configured
+  return NextResponse.json(
+    { 
+      error: 'Circle SDK integration pending',
+      message: 'This endpoint will be available when Circle Web SDK is fully integrated'
+    },
+    { status: 503 }
+  );
+  
+  /* DISABLED CODE - Re-enable when Circle SDK is ready
   try {
     const { circleUserId, circleUserToken, provider } = await request.json();
 
@@ -111,4 +119,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  */
 }
