@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight, ArrowDownLeft, Wallet, Copy, CheckCircle, RefreshCw, Settings, User } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Wallet, Copy, CheckCircle, RefreshCw, Settings, User, Layers } from 'lucide-react';
 import { formatCurrency, formatRelativeTime } from '@/lib/utils/format';
 import Link from 'next/link';
+import { MultiChainBalance } from '@/components/wallet/MultiChainBalance';
+import { CrossChainTransfer } from '@/components/wallet/CrossChainTransfer';
+import { type ChainId } from '@/types';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -16,6 +19,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showCrossChainTransfer, setShowCrossChainTransfer] = useState(false);
+  const [selectedChain, setSelectedChain] = useState<ChainId | null>(null);
 
   useEffect(() => {
     // Check for token in URL query parameters (from OAuth callback)
@@ -112,6 +117,17 @@ export default function DashboardPage() {
     }
   };
 
+  const handleTransferClick = (chainId: ChainId) => {
+    setSelectedChain(chainId);
+    setShowCrossChainTransfer(true);
+  };
+
+  const handleTransferSuccess = () => {
+    setShowCrossChainTransfer(false);
+    setSelectedChain(null);
+    handleRefresh();
+  };
+
   const formatAddress = (address: string) => {
     if (!address) return 'No wallet';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -162,75 +178,28 @@ export default function DashboardPage() {
 
         {/* Main Grid */}
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          {/* Left Column - Balance & Wallet */}
+          {/* Left Column - Multi-Chain Wallet & Transfer */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Balance Card */}
-            <Card className="bg-gradient-to-br from-brand-500 to-teal-600 text-white border-0 shadow-lg">
-              <CardContent className="pt-6">
-                <p className="text-sm opacity-90 mb-2">Total Balance</p>
-                <div className="text-5xl font-bold mb-4">{formatCurrency(totalBalance)}</div>
-                <div className="flex items-center gap-2">
-                  <div className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
-                    USDC
-                  </div>
-                  <div className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
-                    USD Stablecoin
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Wallet Card */}
+            {/* Multi-Chain Wallet Display */}
             {user?.smart_wallet_address && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Wallet className="h-5 w-5 text-brand-600" />
-                    Smart Contract Wallet
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-2">Wallet Address</p>
-                      <div className="flex items-center justify-between gap-2">
-                        <code className="text-sm font-mono break-all">{user.smart_wallet_address}</code>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={copyAddress}
-                          className="shrink-0"
-                        >
-                          {copied ? (
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span>Gasless transactions</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span>Multi-chain support</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span>Non-custodial</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span>ERC-4337</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <MultiChainBalance
+                walletAddress={user.smart_wallet_address}
+                onTransferClick={handleTransferClick}
+              />
+            )}
+
+            {/* Cross-Chain Transfer Modal */}
+            {showCrossChainTransfer && user?.smart_wallet_address && (
+              <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                  <CrossChainTransfer
+                    walletAddress={user.smart_wallet_address}
+                    initialSourceChain={selectedChain || '1'}
+                    onSuccess={handleTransferSuccess}
+                    onCancel={() => setShowCrossChainTransfer(false)}
+                  />
+                </div>
+              </div>
             )}
           </div>
 
@@ -242,7 +211,15 @@ export default function DashboardPage() {
                 <CardTitle className="text-lg">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full" size="lg">
+                <Button
+                  className="w-full bg-gradient-to-r from-brand-500 to-teal-500 hover:from-brand-600 hover:to-teal-600"
+                  size="lg"
+                  onClick={() => setShowCrossChainTransfer(true)}
+                >
+                  <Layers className="mr-2 h-5 w-5" />
+                  Cross-Chain Transfer
+                </Button>
+                <Button className="w-full" variant="outline" size="lg">
                   <ArrowUpRight className="mr-2 h-5 w-5" />
                   Send Money
                 </Button>
